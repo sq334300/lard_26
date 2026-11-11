@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 set -euo pipefail
 
 rm -rf build/
@@ -7,19 +7,8 @@ mkdir -p build
 echo "Build Started!"
 echo
 
-xcodebuild \
-  -project lara.xcodeproj \
-  -scheme lara \
-  -configuration Debug \
-  -sdk iphoneos \
-  -arch arm64e \
-  CODE_SIGNING_ALLOWED=NO \
-  CODE_SIGNING_REQUIRED=NO \
-  CODE_SIGN_IDENTITY="" \
-  CODE_SIGN_ENTITLEMENTS="Config/lara.entitlements" \
-  COMPILER_INDEX_STORE_ENABLE=NO SWIFT_USE_INTEGRATED_DRIVER=NO SWIFT_COMPILATION_MODE=wholemodule \\
-  archive \
-  -archivePath "$PWD/build/lara.xcarchive" 2>&1 | xcpretty
+# 注意：这里去掉了反斜杠，全拼成一行；去掉了 xcpretty
+xcodebuild -project lara.xcodeproj -scheme lara -configuration Debug -sdk iphoneos -arch arm64e CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" CODE_SIGN_ENTITLEMENTS="Config/lara.entitlements" COMPILER_INDEX_STORE_ENABLE=NO SWIFT_USE_INTEGRATED_DRIVER=NO SWIFT_COMPILATION_MODE=wholemodule archive -archivePath "$PWD/build/lara.xcarchive"
 
 APP_PATH="$PWD/build/lara.xcarchive/Products/Applications/lara.app"
 if [ ! -d "$APP_PATH" ]; then
@@ -34,9 +23,10 @@ plutil -replace UIFileSharingEnabled -bool YES "$PWD/build/Payload/lara.app/Info
 plutil -replace NSAppTransportSecurity -dict-add NSAllowsArbitraryLoads -bool YES "$PWD/build/Payload/lara.app/Info.plist"
 
 if ! command -v ldid >/dev/null 2>&1; then
-  echo "ERROR: ldid not installed. Install with: brew install ldid" >&2
-  exit 1
+  echo "ldid not found, installing via brew..."
+  brew install ldid
 fi
+
 ldid -SConfig/lara.entitlements "$PWD/build/Payload/lara.app/lara"
 (cd "$PWD/build" && /usr/bin/zip -qry lara.ipa Payload)
 
