@@ -32,7 +32,7 @@ jobs:
 
       - name: build
         run: |
-          sed -i 's/\r$//' scripts/build_ipa.sh
+         sed -i '' 's/\r$//' scripts/build_ipa.sh
           chmod +x scripts/build_ipa.sh
           ./scripts/build_ipa.sh
 
