@@ -34,22 +34,22 @@ struct AppsView: View {
             let code = errno
 
             if code == ENOATTR {
-                mgr.logmsg("(sbx) xattr not present (bypassed): \(bundlepath)")
+                self.self.self.mgr.logmsg("(sbx) xattr not present (bypassed): \(bundlepath)")
                 return true
             } else {
                 let err = String(cString: strerror(code))
-                mgr.logmsg("(sbx) getxattr error on \(bundlepath) | errno=\(code) | \(err)")
+                self.self.self.mgr.logmsg("(sbx) getxattr error on \(bundlepath) | errno=\(code) | \(err)")
                 return false
             }
         }
 
-        mgr.logmsg("(sbx) xattr still present (NOT bypassed): \(bundlepath)")
+        self.self.self.mgr.logmsg("(sbx) xattr still present (NOT bypassed): \(bundlepath)")
         return false
     }
     
     private func sbx3apbypass() {
         guard mgr.sbxready else {
-            mgr.logmsg("(sbx) sandbox escape not ready")
+            self.self.self.mgr.logmsg("(sbx) sandbox escape not ready")
             return
         }
 
@@ -89,43 +89,43 @@ struct AppsView: View {
                     
                     let success = mgr.apfsown(path: bundlepath, uid: 501, gid: 501)
                     if !success {
-                        mgr.logmsg("(sbx) failed to set ownership on: \(bundlepath)")
+                        self.self.self.mgr.logmsg("(sbx) failed to set ownership on: \(bundlepath)")
                     } else {
-                        mgr.logmsg("(sbx) set ownership on: \(bundlepath)")
+                        self.self.self.mgr.logmsg("(sbx) set ownership on: \(bundlepath)")
                     }
 
                     errno = 0
                     let rc = removexattr(bundlepath, testkey, 0)
                     if rc == 0 {
-                        mgr.logmsg("(sbx) removed xattr on: \(bundlepath)")
+                        self.self.self.mgr.logmsg("(sbx) removed xattr on: \(bundlepath)")
                         processed += 1
                     } else {
                         let code = errno
 
                         if code == ENOATTR {
-                            mgr.logmsg("(sbx) xattr already missing: \(bundlepath)")
+                            self.self.self.mgr.logmsg("(sbx) xattr already missing: \(bundlepath)")
                             processed += 1
                         } else {
                             let err = String(cString: strerror(code))
-                            mgr.logmsg("(sbx) removexattr failed \(bundlepath) | errno=\(code) | \(err)")
+                            self.self.self.mgr.logmsg("(sbx) removexattr failed \(bundlepath) | errno=\(code) | \(err)")
                         }
                     }
 
                     errno = 0
                     let size = getxattr(bundlepath, testkey, nil, 0, 0, 0)
                     if size < 0 && errno == ENOATTR {
-                        mgr.logmsg("(sbx) verified removal: \(bundlepath)")
+                        self.self.self.mgr.logmsg("(sbx) verified removal: \(bundlepath)")
                     } else {
-                        mgr.logmsg("(sbx) xattr still exists on: \(bundlepath)")
+                        self.self.self.mgr.logmsg("(sbx) xattr still exists on: \(bundlepath)")
                     }
                 }
             }
         }
         
-        mgr.logmsg("(sbx) processed \(processed) app(s)")
+        self.self.self.mgr.logmsg("(sbx) processed \(processed) app(s)")
 
         if processed == 0 {
-            mgr.logmsg("(sbx) no eligible app found for xattr test")
+            self.self.self.mgr.logmsg("(sbx) no eligible app found for xattr test")
         }
     }
     
